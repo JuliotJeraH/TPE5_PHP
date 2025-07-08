@@ -82,42 +82,30 @@ $Ingredient9->prixKg = 15.00;
 
 // -------------------------- MenuItem ----------------------
 $MenuItem1 = new MenuItem();
-$MenuItem1->$id = 1;
+$MenuItem1->id = 1;
 $MenuItem1->nom = "Pizza Margherita";
-$MenuItem1->$prixHT = 6.00;
+$MenuItem1->prixHT = 6.00;
 $MenuItem1->categorie = "plat";
 
-if($MenuItem1->estDisponible()){
-    $MenuItem1->disponible = true;
-} else {
-    $MenuItem1->disponible = false;
-}
-
 $MenuItem1->recette = [
-    "Pâte à pizza" => 0.2,
-    "Tomates" => 0.1,
-    "Fromage mozzarella" => 0.15,
-    "Basilic" => 0.05
+    $Ingredient1 => 0.2,
+    $Ingredient2 => 0.1,
+    $Ingredient3 => 0.15,
+    $Ingredient4 => 0.05
 ];
 
 $MenuItem2 = new MenuItem();
-$MenuItem2->$id = 2;
+$MenuItem2->id = 2;
 $MenuItem2->nom = "Salade César";
-$MenuItem2->$prixHT = 4.60;
-$MenuItem2->categorie = "dessert";
-
-if($MenuItem2->estDisponible()){
-    $MenuItem2->disponible = true;
-} else {
-    $MenuItem2->disponible = false;
-}
+$MenuItem2->prixHT = 4.60;
+$MenuItem2->categorie = "plat";
 
 $MenuItem2->recette = [
-    "Laitue" => 0.2,
-    "Poulet grillé" => 0.15,
-    "Croûtons" => 0.1,
-    "Parmesan" => 0.05,
-    "Sauce César" => 0.05
+    $Ingredient5 => 0.2,
+    $Ingredient6 => 0.15,
+    $Ingredient7 => 0.1,
+    $Ingredient8 => 0.05,
+    $Ingredient9 => 0.05
 ];
 
 
@@ -169,22 +157,105 @@ echo $totalCommande1 = $Commande1->totalHT();
 echo $totalCommande2 = $Commande2->totalHT();
 
 
-// --------------------- ligne de commande---------------------
-$Ligne1 = new LigneCommande();
-$Ligne1->plat = $MenuItem1;
-$Ligne1->quantite = 2;
+$Client1 = new Client();
+$Client1->nom = "Rasolo";
+$Client1->nombrePersonnes = 4;
 
-$Ligne2 = new LigneCommande();
-$Ligne2->plat = $MenuItem2;
-$Ligne2->quantite = 1;
+$Client2 = new Client();
+$Client2->nom = "Tolotra";
+$Client2->nombrePersonnes = 2;
 
+// ----------------------- Initialisation ----------------------
+
+// 1. Initialiser le stock avec 5 ingrédients
+$Inventaire1 = new Inventaire();
+$Inventaire1->ajouterIngredient($Ingredient1);
+$Inventaire1->ajouterIngredient($Ingredient2);
+$Inventaire1->ajouterIngredient($Ingredient3);
+$Inventaire1->ajouterIngredient($Ingredient4);
+$Inventaire1->ajouterIngredient($Ingredient5);
+
+// 2. Proposer 2 plats à la carte
+$MenuItem1 = new MenuItem();
+$MenuItem1->id = 1;
+$MenuItem1->nom = "Pizza Margherita";
+$MenuItem1->prixHT = 6.00;
+$MenuItem1->categorie = "plat";
+$MenuItem1->recette = [
+    $Ingredient1 => 0.2,
+    $Ingredient2 => 0.1,
+    $Ingredient3 => 0.15,
+    $Ingredient4 => 0.05
+];
+
+$MenuItem2 = new MenuItem();
+$MenuItem2->id = 2;
+$MenuItem2->nom = "Salade César";
+$MenuItem2->prixHT = 4.60;
+$MenuItem2->categorie = "plat";
+$MenuItem2->recette = [
+    $Ingredient5 => 0.2,
+    $Ingredient6 => 0.15,
+    $Ingredient7 => 0.1,
+    $Ingredient8 => 0.05,
+    $Ingredient9 => 0.05
+];
+
+// ----------------------- Client et Serveur ----------------------
+
+// 3. Un client (4 personnes) arrive. Le serveur l’installe à une table.
+$Client1 = new Client();
+$Client1->nom = "Rasolo";
+$Client1->nombrePersonnes = 4;
+
+$Table1 = new TableResto();
+$Table1->numero = 5;
+$Table1->capacite = 4;
+$Table1->occupee = false;
+
+$Serveur1 = new Serveur();
+$Serveur1->id = 1;
+$Serveur1->nom = "Antsa";
+
+$tableLibre = $Serveur1->trouverTableLibre($Client1, [$Table1]);
+if (!$tableLibre) {
+    echo "Aucune table disponible pour le client.\n";
+    exit;
+}
+
+// 4. Le client commande 2 portions de chaque plat.
+$platsCommandes = [
+    $MenuItem1 => 2,
+    $MenuItem2 => 2
+];
+
+$Commande1 = $Serveur1->prendreCommande($Client1, $tableLibre, 1, $platsCommandes, $Inventaire1, $Cuisine);
 
 // ----------------------- Cuisine ----------------------
-$Cuisine = new Cuisine();
-$Cuisine->$maxSimultane = 5;
 
-$Cuisine->ajouter($Commande1);
-$Cuisine->ajouter($Commande2);
+// 5. La commande est envoyée à la cuisine.
+$Serveur1->envoyerCommandeCuisine($Commande1, $Cuisine);
+
+// 6. La cuisine traite la commande (la met en “prête”).
+$commandePrete = $Cuisine->terminerUneCommande();
+if ($commandePrete) {
+    echo "Commande " . $commandePrete->id . " est prête.\n";
+}
+
+// ----------------------- Paiement et Libération ----------------------
+
+// 7. Le client règle l’addition.
+$totalHT = $Commande1->totalHT();
+$totalTTC = $Commande1->totalTTC();
+echo "Total HT: " . $totalHT . " | Total TTC: " . $totalTTC . "\n";
+
+// 8. La table est libérée.
+echo $tableLibre->liberer();
+
+// ----------------------- Alertes Stock ----------------------
+
+// 9. Afficher les ingrédients à recharger.
+echo $Inventaire1->alertesStock();
 
 
 
