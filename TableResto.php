@@ -23,6 +23,12 @@ class TableResto{
     }
 
     public function liberer(){
+        if($this->occupee){
+            $this->occupee = false;
+            return "Table ".$this->numero." est maintenant libre.";
+        } else {
+            return "Table ".$this->numero." est déjà libre.";
+        }
         
     }
 }

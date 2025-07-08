@@ -24,7 +24,7 @@ class Commande {
 
     }
 
-    public totalHT() {
+    public function totalHT() {
         $total = 0;
         foreach ($this->lignes as $ligne) {
             $total += $ligne->sousTotal();
@@ -35,17 +35,27 @@ class Commande {
         return $total;
     }
 
-    public totalTTC() {
+    public function totalTTC() {
         $total = $this->totalHT();
         return $total * 1.2;
     }
 
     public function envoyerCuisine(Cuisine $cuisine, Inventaire $inv) {
-
+        if ($this->etat == "En attente") {
+            if ($cuisine->peutAccepter()) {
+                $cuisine->ajouter($this);
+                $this->etat = "En cours";
+                echo "Commande envoyée à la cuisine.\n";
+            } else {
+                echo "Cuisine pleine, impossible d'envoyer la commande.\n";
+            }
+        } else {
+            echo "La commande n'est pas en attente.\n";
+        }
 
     }
 
-    public marquerPrete() {
+    public function marquerPrete() {
         if (count($this->lignes) > 0) {
             $this->etat = "Prête";
             return true;
@@ -55,7 +65,7 @@ class Commande {
         }
     }
 
-    public payer() {
+    public function payer() {
         if ($this->etat == "Prête") {
             $this->etat = "Payée";
             $this->table = null;
@@ -66,7 +76,23 @@ class Commande {
         }
     }
 
-    public decrire() {
+    public function decrire() {
+        $description = "Commande ID: " . $this->id . "\n";
+        $description .= "Client: " . $this->client->nom . "\n";
+        $description .= "Date: " . $this->date . "\n";
+        if ($this->table) {
+            $description .= "Table: " . $this->table->numero . "\n";
+        } else {
+            $description .= "Table: Aucune\n";
+        }
+        $description .= "État: " . $this->etat . "\n";
+        $description .= "Lignes de commande:\n";
+
+        foreach ($this->lignes as $ligne) {
+            $description .= "- " . $ligne->plat->nom . " x" . $ligne->quantite . " (Sous-total: " . $ligne->sousTotal() . ")\n";
+        }
+
+        return $description;
         
     }
 }
