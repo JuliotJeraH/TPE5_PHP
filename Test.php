@@ -188,26 +188,13 @@ $Cuisine->ajouter($Commande2);
 
 
 
-
-
-
-
-
-
-
-
-
-
 // ----------------------- Restaurant ----------------------
 $Restaurant = new Restaurant(); 
 $Restaurant->nom = "La Bonne Table";
-$Restaurant->
-
-
-
-
-
-
+$Restaurant->tables= array($Table1, $Table2);
+$Restaurant->menu = array($MenuItem1, $MenuItem2);
+$Restaurant->inventaire = $Inventaire1;
+$Restaurant->cuisine = $Cuisine;
 
 
 // ----------------------- Inventaire ----------------------------
@@ -240,17 +227,5 @@ $Serveur2->id = 2;
 $Serveur2->nom = "Miora";
 
 
-
-
-
-
-
-
-
-
-// ----------------------- Affichage ----------------------------
-foreach ($Inventaire1->stocks as $stock) {
-    echo $stock->nom . " - " . $stock->stockKg . "kg<br>";
-}
 
 ?>
