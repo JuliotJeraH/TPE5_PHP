@@ -7,10 +7,9 @@ class MenuItem{
     public $disponible;
     public $recette;
     
-}
 
  public function estDisponible() {
-        $estDisponible= false;
+        $estDisponible = false;
         foreach ($this->recette as $ingredient => $quantite) {
             if(!$ingredient->estPerime(new DateTime()) && $ingredient->stockKg >= $quantite) {
                 $estDisponible = true;
@@ -22,6 +21,6 @@ class MenuItem{
         return $estDisponible;
     }
 
-
+}
 
 ?>

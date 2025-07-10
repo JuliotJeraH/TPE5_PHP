@@ -7,17 +7,21 @@ class Inventaire{
         array_push($this->stocks, $i);
     }
 
-    public function peutProduire(MenuItem $p, int $q){
-        foreach($this->stocks as $stock){
-            if($stock->nom == $p->ingredient->nom){
-                if($stock->quantite >= $q * $p->ingredient->quantite){
-                    return true;
+    public function peutProduire(MenuItem $p, int $q) {
+        foreach ($this->stocks as $stock) {
+            foreach ($p->recette as $ingredient => $quantite) {
+                if ($stock->nom == $ingredient) {
+                    if ($stock->stockKg < $q * $quantite) { // Use stockKg instead of quantite
+                        echo "Quantité insuffisante pour l'ingrédient: " . $stock->nom;
+                        return false;
+                    }
                 } else {
+                    echo "Ingrédient non trouvé: " . $ingredient;
                     return false;
                 }
             }
         }
-        return false;
+        return true; // Adjusted to return true if all checks pass
     }
 
     public function consommer(MenuItem $p, int $q){
@@ -67,7 +71,14 @@ class Inventaire{
         }
     }
 }
-    
+    public function getIngredientByName($name) {
+        foreach ($this->stocks as $ingredient) {
+            if ($ingredient->nom === $name) {
+                return $ingredient;
+            }
+        }
+        return null; // Return null if the ingredient is not found
+    }
 }
 
 

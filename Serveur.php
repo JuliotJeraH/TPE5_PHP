@@ -29,7 +29,7 @@ class Serveur {
     }
 
     public function ajouterPlatACommande(Commande $commande, MenuItem $plat, int $qte, Inventaire $inv) {
-        if ($inv->disponible($plat, $qte)) {
+        if ($inv->peutProduire($plat, $qte)) {
             $commande->ajouterPlat($plat, $qte, $inv);
             echo "Plat ajouté à la commande: " . $plat->nom . " x" . $qte . "\n";
         } else {

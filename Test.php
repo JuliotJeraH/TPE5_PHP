@@ -133,6 +133,9 @@ $Client2->nom = "Tolotra";
 $Client2->nombrePersonnes = 2;
 
 // --------------------- Trouver table pour le client ----------------------
+$Serveur1 = new Serveur();
+$Serveur1->id = 1;
+$Serveur1->nom = "Rabe";
 $tableLibre = $Serveur1->trouverTableLibre($Client1, $tables);
 $tableLibre->placerClients();
 
@@ -149,8 +152,8 @@ $LigneCommande2->plat = $MenuItem2;
 $LigneCommande2->quantite = 2;
 
 // ---------------------- Ajouter des lignes de commande à la commande ----------------------
-$Commande1->ajouterLigne($LigneCommande1);
-$Commande1->ajouterLigne($LigneCommande2);
+$Commande1->ajoutLigne($LigneCommande1);
+$Commande1->ajoutLigne($LigneCommande2);
 
 
 // ---------------------- Inventaire ----------------------
