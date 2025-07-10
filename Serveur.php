@@ -5,10 +5,10 @@ class Serveur {
 
 
 
-    public function trouverTableLibre(TableResto $table, array $tables) {
-        foreach ($tables as $t) {
-            if ($t->numero == $table->numero && $t->etat == "Libre") {
-                return $t;
+    public function trouverTableLibre(Client $client, array $tables) {
+        foreach ($tables as $table) {
+            if (!$table->occupee && $table->peutAccueillir($client->nombrePersonnes)) {
+                return $table;
             }
         }
         echo "Aucune table libre trouvée.\n";

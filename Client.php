@@ -4,11 +4,4 @@ class Client{
     public $nombrePersonnes;
 }
 
-
-
-
-
-
-
-
 ?>

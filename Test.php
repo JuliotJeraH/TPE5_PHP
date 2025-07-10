@@ -88,10 +88,10 @@ $MenuItem1->prixHT = 6.00;
 $MenuItem1->categorie = "plat";
 
 $MenuItem1->recette = [
-    $Ingredient1 => 0.2,
-    $Ingredient2 => 0.1,
-    $Ingredient3 => 0.15,
-    $Ingredient4 => 0.05
+    "Pâte à pizza" => 0.2,
+    "Tomates" => 0.1,
+    "Fromage mozzarella" => 0.15,
+    "Basilic" => 0.05
 ];
 
 $MenuItem2 = new MenuItem();
@@ -101,11 +101,11 @@ $MenuItem2->prixHT = 4.60;
 $MenuItem2->categorie = "plat";
 
 $MenuItem2->recette = [
-    $Ingredient5 => 0.2,
-    $Ingredient6 => 0.15,
-    $Ingredient7 => 0.1,
-    $Ingredient8 => 0.05,
-    $Ingredient9 => 0.05
+    "Laitue" => 0.2,
+    "Poulet" => 0.15,
+    "Croutons" => 0.1,
+    "Parmesan" => 0.05,
+    "Sauce César" => 0.05
 ];
 
 
@@ -120,43 +120,10 @@ $Table2->numero = 3;
 $Table2->capacite = 2;
 $Table2->occuppee = false;
 
-if($Table1->peutAccueillir($Client1->nombrePersonnes)){
-    echo $Table1->placerClients();
-} else {
-    echo "La table ".$Table1->numero." ne peut pas accueillir ".$Client1->nombrePersonnes." personnes.";
-}
+// List des tables
+$tables = [$Table1, $Table2];
 
-if($Table2->peutAccueillir($Client2->nombrePersonnes)){
-    echo $Table2->placerClients();
-} else {
-    echo "La table ".$Table2->numero." ne peut pas accueillir ".$Client2->nombrePersonnes." personnes.";
-}
-
-
-// -------------------- Commandes ----------------------
-$Commande1 = new Commande();
-$Commande1->id = 1;
-$Commande1->client = $Client1->nom;
-$Commande1->date = "2023-10-01";
-$Commande1->table = $Table1;
-$Commande1->etat = "En attente";
-
-$Commande2 = new Commande();
-$Commande2->id = 2;
-$Commande2->client = $Client2->nom;
-$Commande2->date = "2023-10-02";
-$Commande2->table = $Table2;
-$Commande2->etat = "En attente";
-
-// Ajout des lignes de commande à la commande
-$Commande1->ajoutLigne($Ligne1);
-$Commande2->ajoutLigne($Ligne2);
-
-// Calcul du total HT pour chaque commande
-echo $totalCommande1 = $Commande1->totalHT();
-echo $totalCommande2 = $Commande2->totalHT();
-
-
+// --------------------- client -----------------------------
 $Client1 = new Client();
 $Client1->nom = "Rasolo";
 $Client1->nombrePersonnes = 4;
@@ -165,137 +132,85 @@ $Client2 = new Client();
 $Client2->nom = "Tolotra";
 $Client2->nombrePersonnes = 2;
 
-// ----------------------- Initialisation ----------------------
+// --------------------- Trouver table pour le client ----------------------
+$tableLibre = $Serveur1->trouverTableLibre($Client1, $tables);
+$tableLibre->placerClients();
 
-// 1. Initialiser le stock avec 5 ingrédients
+// -------------------- Commandes ----------------------
+$Commande1= $Serveur1->prendreCommande($Client1, $tableLibre, 1);
+
+// ---------------------- lignes de commande ----------------------
+$LigneCommande1 = new LigneCommande();
+$LigneCommande1->plat = $MenuItem1;
+$LigneCommande1->quantite = 2;
+
+$LigneCommande2 = new LigneCommande();
+$LigneCommande2->plat = $MenuItem2;
+$LigneCommande2->quantite = 2;
+
+// ---------------------- Ajouter des lignes de commande à la commande ----------------------
+$Commande1->ajouterLigne($LigneCommande1);
+$Commande1->ajouterLigne($LigneCommande2);
+
+
+// ---------------------- Inventaire ----------------------
 $Inventaire1 = new Inventaire();
 $Inventaire1->ajouterIngredient($Ingredient1);
 $Inventaire1->ajouterIngredient($Ingredient2);
 $Inventaire1->ajouterIngredient($Ingredient3);
 $Inventaire1->ajouterIngredient($Ingredient4);
 $Inventaire1->ajouterIngredient($Ingredient5);
+$Inventaire1->ajouterIngredient($Ingredient6);
+$Inventaire1->ajouterIngredient($Ingredient7);
+$Inventaire1->ajouterIngredient($Ingredient8);
+$Inventaire1->ajouterIngredient($Ingredient9);
 
-// 2. Proposer 2 plats à la carte
-$MenuItem1 = new MenuItem();
-$MenuItem1->id = 1;
-$MenuItem1->nom = "Pizza Margherita";
-$MenuItem1->prixHT = 6.00;
-$MenuItem1->categorie = "plat";
-$MenuItem1->recette = [
-    $Ingredient1 => 0.2,
-    $Ingredient2 => 0.1,
-    $Ingredient3 => 0.15,
-    $Ingredient4 => 0.05
-];
+// ---------------------- Ajouter des plats à la commande ----------------------
+$Serveur1->ajouterPlatACommande($Commande1, $MenuItem1, 2, $Inventaire1);
+$Serveur1->ajouterPlatACommande($Commande1, $MenuItem2, 2, $Inventaire1);
 
-$MenuItem2 = new MenuItem();
-$MenuItem2->id = 2;
-$MenuItem2->nom = "Salade César";
-$MenuItem2->prixHT = 4.60;
-$MenuItem2->categorie = "plat";
-$MenuItem2->recette = [
-    $Ingredient5 => 0.2,
-    $Ingredient6 => 0.15,
-    $Ingredient7 => 0.1,
-    $Ingredient8 => 0.05,
-    $Ingredient9 => 0.05
-];
+// ---------------------- envoi de la commande à la cuisine ----------------------
+$Cuisine = new Cuisine();
+$Cuisine->maxSimultane = 5;
 
-// ----------------------- Client et Serveur ----------------------
+$Serveur1->envoyerCommandeCuisine($Commande1, $Cuisine, $Inventaire1);
 
-// 3. Un client (4 personnes) arrive. Le serveur l’installe à une table.
-$Client1 = new Client();
-$Client1->nom = "Rasolo";
-$Client1->nombrePersonnes = 4;
 
-$Table1 = new TableResto();
-$Table1->numero = 5;
-$Table1->capacite = 4;
-$Table1->occupee = false;
+// ----------------------- termine la commande en cuisine ----------------------
 
-$Serveur1 = new Serveur();
-$Serveur1->id = 1;
-$Serveur1->nom = "Antsa";
-
-$tableLibre = $Serveur1->trouverTableLibre($Client1, [$Table1]);
-if (!$tableLibre) {
-    echo "Aucune table disponible pour le client.\n";
-    exit;
-}
-
-// 4. Le client commande 2 portions de chaque plat.
-$platsCommandes = [
-    $MenuItem1 => 2,
-    $MenuItem2 => 2
-];
-
-$Commande1 = $Serveur1->prendreCommande($Client1, $tableLibre, 1, $platsCommandes, $Inventaire1, $Cuisine);
-
-// ----------------------- Cuisine ----------------------
-
-// 5. La commande est envoyée à la cuisine.
-$Serveur1->envoyerCommandeCuisine($Commande1, $Cuisine);
-
-// 6. La cuisine traite la commande (la met en “prête”).
 $commandePrete = $Cuisine->terminerUneCommande();
 if ($commandePrete) {
     echo "Commande " . $commandePrete->id . " est prête.\n";
 }
 
-// ----------------------- Paiement et Libération ----------------------
-
-// 7. Le client règle l’addition.
+// ----------------------- Paiement et libération de la table ----------------------
 $totalHT = $Commande1->totalHT();
 $totalTTC = $Commande1->totalTTC();
 echo "Total HT: " . $totalHT . " | Total TTC: " . $totalTTC . "\n";
 
-// 8. La table est libérée.
+// ----------------------------- Libération de la table ------------------------
 echo $tableLibre->liberer();
 
-// ----------------------- Alertes Stock ----------------------
-
-// 9. Afficher les ingrédients à recharger.
-echo $Inventaire1->alertesStock();
-
-
+// ------------------------ Afficher les ingrédients à recharger ----------------------
+$alertes = $Inventaire1->alertesStock();
+if (!empty($alertes)) {
+    echo "Ingrédients à recharger :\n";
+    foreach ($alertes as $alerte) {
+        echo "- " . $alerte->nom . " (Stock: " . $alerte->stockKg . " kg, Seuil: " . $alerte->seuilReappro . " kg)\n";
+    }
+} else {
+    echo "Aucun ingrédient à recharger.\n";
+}
 
 // ----------------------- Restaurant ----------------------
-$Restaurant = new Restaurant(); 
-$Restaurant->nom = "La Bonne Table";
-$Restaurant->tables= array($Table1, $Table2);
+$Restaurant = new Restaurant();
+$Restaurant->nom = "Mahavoky";
+$Restaurant->tables = $tables;
 $Restaurant->menu = array($MenuItem1, $MenuItem2);
 $Restaurant->inventaire = $Inventaire1;
 $Restaurant->cuisine = $Cuisine;
 
 
-// ----------------------- Inventaire ----------------------------
-
-$Inventaire1 = new Inventaire();
-
-$Inventaire1->ajouterIngredient($Ingredient1);
-$Inventaire1->ajouterIngredient($Ingredient2);
-$Inventaire1->ajouterIngredient($Ingredient3);
-$Inventaire1->ajouterIngredient($Ingredient4);
-$Inventaire1->ajouterIngredient($Ingredient5);
-
-
-// -------------------- Clients ----------------------
-$Client1 = new Client();
-$Client1->nom = "Rasolo";
-$Client1->nombrePersonnes = 4;
-
-$Client2 = new Client();
-$Client2->nom = "Tolotra";
-$Client2->nombrePersonnes = 2;
-
-//------------------------ Serveur ----------------------
-$Serveur1 = new Serveur();
-$Serveur1->id = 1;
-$Serveur1->nom = "Antsa";
-
-$Serveur2 = new Serveur();
-$Serveur2->id = 2;
-$Serveur2->nom = "Miora";
 
 
 
