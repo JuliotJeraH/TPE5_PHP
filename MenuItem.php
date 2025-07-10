@@ -8,18 +8,17 @@ class MenuItem{
     public $recette;
     
 
- public function estDisponible() {
-        $estDisponible = false;
-        foreach ($this->recette as $ingredient => $quantite) {
-            if(!$ingredient->estPerime(new DateTime()) && $ingredient->stockKg >= $quantite) {
-                $estDisponible = true;
-            } else {
-                $estDisponible = false;
-                break;
-            }
+ public function estDisponible(Inventaire $inventaire) {
+    $estDisponible = true;
+    foreach ($this->recette as $ingredientName => $quantite) {
+        $ingredient = $inventaire->getIngredientByName($ingredientName); // Retrieve the Ingredient object
+        if (!$ingredient || $ingredient->estPerime(new DateTime()) || $ingredient->stockKg < $quantite) {
+            $estDisponible = false;
+            break;
         }
-        return $estDisponible;
     }
+    return $estDisponible;
+}
 
 }
 

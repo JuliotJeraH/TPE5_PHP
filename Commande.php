@@ -24,19 +24,16 @@ class Commande {
 
     }
 
-    public function totalHT() {
+    public function totalHT(Inventaire $inventaire) {
         $total = 0;
         foreach ($this->lignes as $ligne) {
-            $total += $ligne->sousTotal();
-        }
-        if($total> 150){
-            $total *= 0.9;
+            $total += $ligne->sousTotal($inventaire); // Pass the Inventaire object to sousTotal
         }
         return $total;
     }
 
-    public function totalTTC() {
-        $total = $this->totalHT();
+    public function totalTTC(Inventaire $inventaire) {
+        $total = $this->totalHT($inventaire); // Pass the Inventaire object here
         return $total * 1.2;
     }
 

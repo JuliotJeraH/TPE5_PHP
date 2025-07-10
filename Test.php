@@ -187,31 +187,32 @@ if ($commandePrete) {
 }
 
 // ----------------------- Paiement et libération de la table ----------------------
-$totalHT = $Commande1->totalHT();
-$totalTTC = $Commande1->totalTTC();
-echo "Total HT: " . $totalHT . " | Total TTC: " . $totalTTC . "\n";
+$totalHT = $Commande1->totalHT($Inventaire1); // Pass the Inventaire object here
+$totalTTC = $Commande1->totalTTC($Inventaire1); // Pass the Inventaire object here
+echo "Total HT: " . $totalHT . " | Total TTC: " . $totalTTC . "<br>";
 
 // ----------------------------- Libération de la table ------------------------
-echo $tableLibre->liberer();
+echo $tableLibre->liberer() . "<br>";
 
 // ------------------------ Afficher les ingrédients à recharger ----------------------
 $alertes = $Inventaire1->alertesStock();
 if (!empty($alertes)) {
-    echo "Ingrédients à recharger :\n";
+    echo "Ingrédients à recharger :<br>";
     foreach ($alertes as $alerte) {
-        echo "- " . $alerte->nom . " (Stock: " . $alerte->stockKg . " kg, Seuil: " . $alerte->seuilReappro . " kg)\n";
+        echo "- " . $alerte->nom . " (Stock: " . $alerte->stockKg . " kg, Seuil: " . $alerte->seuilReappro . " kg)<br>";
     }
 } else {
-    echo "Aucun ingrédient à recharger.\n";
+    echo "Aucun ingrédient à recharger.<br>";
 }
 
 // ----------------------- Restaurant ----------------------
 $Restaurant = new Restaurant();
-$Restaurant->nom = "Mahavoky";
+$Restaurant->nom = "Chez Rabe";
 $Restaurant->tables = $tables;
-$Restaurant->menu = array($MenuItem1, $MenuItem2);
 $Restaurant->inventaire = $Inventaire1;
 $Restaurant->cuisine = $Cuisine;
+
+echo "Restaurant " . $Restaurant->nom . " créé avec succès.<br>";
 
 
 

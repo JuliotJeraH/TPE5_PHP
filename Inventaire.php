@@ -24,53 +24,53 @@ class Inventaire{
         return true; // Adjusted to return true if all checks pass
     }
 
-    public function consommer(MenuItem $p, int $q){
-        foreach($this->stocks as $stock){
-            if($stock->nom == $p->ingredient->nom){
-                if($stock->quantite >= $q * $p->ingredient->quantite){
-                    $stock->quantite -= $q * $p->ingredient->quantite;
-                    return true;
-                } else {
-                    echo "Quantité insuffisante pour l'ingrédient: " . $stock->nom;
-                    return false;
+    public function consommer(MenuItem $p, int $q) {
+        foreach ($this->stocks as $stock) {
+            foreach ($p->recette as $ingredientName => $ingredientQuantity) {
+                if ($stock->nom == $ingredientName) {
+                    if ($stock->stockKg >= $q * $ingredientQuantity) {
+                        $stock->stockKg -= $q * $ingredientQuantity;
+                        return true;
+                    } else {
+                        echo "Quantité insuffisante pour l'ingrédient: " . $stock->nom;
+                        return false;
+                    }
                 }
             }
         }
-        echo "Ingrédient non trouvé: " . $p->ingredient->nom;
+        echo "Ingrédient non trouvé: " . $ingredientName;
         return false;
     }
 
-    public function alertesStock(){
+    public function alertesStock() {
         $alerte = array();
-        foreach($this->stocks as $stock){
-            if($stock->quantite < $stock->seuilReappro){
-                $alerte[] = $stock->nom . " est en dessous du seuil de réapprovisionnement.";
+        foreach ($this->stocks as $stock) {
+            if ($stock->stockKg < $stock->seuilReappro) {
+                $alerte[] = $stock; // Store the Ingredient object instead of a string
             }
         }
-        if(empty($alerte)){
-            return "Aucune alerte de stock.";
-        } else {
-            return $alerte;
-        }
+        return $alerte;
     }
 
-    public function AffichePlatIndisponible($LignesCommande){
+    public function AffichePlatIndisponible($LignesCommande) {
         $indisponibles = array();
-        foreach (alertesStock() as $alerte) {
-            foreach ($LignesCommande as $ligne) {
-                if ($ligne->ingredient->nom == $alerte) {
-                    $indisponibles[] = $ligne->nom;
+        $alertes = $this->alertesStock(); // Call alertesStock() correctly
+        foreach ($LignesCommande as $ligne) {
+            foreach ($alertes as $alerte) {
+                if (in_array($alerte->nom, array_keys($ligne->plat->recette))) {
+                    $indisponibles[] = $ligne->plat->nom;
                 }
+            }
         }
-    }   echo "Plats indisponibles en raison d'un stock insuffisant : ";
-    if (empty($indisponibles)) {
-        echo "Tous les plats sont disponibles.";
-    } else {
-        foreach ($indisponibles as $plat) {
-            echo $plat->nom . "<br>";
+        echo "Plats indisponibles en raison d'un stock insuffisant : ";
+        if (empty($indisponibles)) {
+            echo "Tous les plats sont disponibles.";
+        } else {
+            foreach ($indisponibles as $plat) {
+                echo $plat . "<br>";
+            }
         }
     }
-}
     public function getIngredientByName($name) {
         foreach ($this->stocks as $ingredient) {
             if ($ingredient->nom === $name) {
