@@ -77,7 +77,7 @@ class Inventaire{
                 return $ingredient;
             }
         }
-        return null; // Return null if the ingredient is not found
+        return null; 
     }
 }
 

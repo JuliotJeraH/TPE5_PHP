@@ -27,13 +27,13 @@ class Commande {
     public function totalHT(Inventaire $inventaire) {
         $total = 0;
         foreach ($this->lignes as $ligne) {
-            $total += $ligne->sousTotal($inventaire); // Pass the Inventaire object to sousTotal
+            $total += $ligne->sousTotal($inventaire);
         }
         return $total;
     }
 
     public function totalTTC(Inventaire $inventaire) {
-        $total = $this->totalHT($inventaire); // Pass the Inventaire object here
+        $total = $this->totalHT($inventaire);
         return $total * 1.2;
     }
 
