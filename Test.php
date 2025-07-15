@@ -187,8 +187,8 @@ if ($commandePrete) {
 }
 
 // ----------------------- Paiement et libération de la table ----------------------
-$totalHT = $Commande1->totalHT($Inventaire1); // Pass the Inventaire object here
-$totalTTC = $Commande1->totalTTC($Inventaire1); // Pass the Inventaire object here
+$totalHT = $Commande1->totalHT($Inventaire1);
+$totalTTC = $Commande1->totalTTC($Inventaire1); 
 echo "Total HT: " . $totalHT . " | Total TTC: " . $totalTTC . "<br>";
 
 // ----------------------------- Libération de la table ------------------------
